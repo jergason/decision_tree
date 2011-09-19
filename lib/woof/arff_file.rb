@@ -1,11 +1,12 @@
 module Woof
   class ArffFile
-    attr_reader :relation_name, :attributes, :data
+    attr_reader :relation_name, :attributes, :data, :class_attribute
 
-    def initialze(relation_name, attributes, data)
+    def initialze(relation_name, attributes, data, class_attribute)
       @relation_name = relation_name
       @attributes = attributes
       @data = data
+      @class_attribute = class_attribute
     end
 
     # Return an array of new ArffFile objects

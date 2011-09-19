@@ -92,7 +92,14 @@ module Woof
         end
       end
 
-      arff = Woof::ArffFile.new(relation_name, parsed_attributes, data)
+      #look for an attribute that matches /^class$/i, or just pick the last one as the class
+      class_attribute = nil
+      parsed_attributes.each_with_index do |attr, i|
+        class_attribute attr[:name] if attr[:name] =~ /class/i
+      end
+      class_attribute = parsed_attributes[-1][:name] if class_attribute.nil?
+
+      arff = Woof::ArffFile.new(relation_name, parsed_attributes, data, class_attribute)
       return arff
     end
   end

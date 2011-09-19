@@ -7,17 +7,9 @@ module DecisionTree
 
     def self.calculate_entropy(dataset)
       #Entropy is just based on the class
-      #How do I know what the class is?
-
-      #Find out the index of the attribute we are looking at
-      attribute_index = 0
-      dataset.attributes.each_with_index do |attr, i|
-        attribute_index = i if attr[:name] == attribute.to_s
-      end
-
       counts = Hash.new(0)
       dataset.each do |data|
-        counts[data[attribute.to_s]] = counts[data[attribute.to_s]] + 1
+        counts[data[dataset.class_attribute]] = counts[data[dataset.class_attribute]] + 1
       end
 
       probs = counts.map do |key, value|
