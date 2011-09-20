@@ -16,7 +16,7 @@ module Woof
     def split_on_attribute(attribute)
       index = find_index_of_attribute(attribute)
 
-      splitted_stuff = Hash.new([])
+      splitted_stuff = {}
       @attributes[index][:nominal_attributes].each do |attribute_value|
         splitted_stuff[attribute_value] = []
       end
@@ -26,10 +26,9 @@ module Woof
         splitted_stuff[data[attribute]] << data.clone
       end
 
-      binding.pry
       ret = {}
       splitted_stuff.each do |key, value|
-        ret[key] = ArffFile.new(@relation_name, @attributes, value, @class_attribute).remove_attribute(attribute)
+        ret[key] = ArffFile.new(@relation_name.clone, @attributes.clone, value.clone, @class_attribute.clone).remove_attribute(attribute)
       end
       ret
     end
@@ -43,11 +42,12 @@ module Woof
       else
         index = to_remove
       end
+      binding.pry
 
       if not index.nil?
         @attributes.delete_at index
         @data.each do |d|
-          d.delete_at index
+          d.delete to_remove
         end
       end
       self
