@@ -27,9 +27,6 @@ module Woof
         l == ""
       end
 
-      p lines
-
-
       #find relation
       rel_line = lines.find do |l|
         l =~ /\s*@relation\s+\w+/i
@@ -80,8 +77,6 @@ module Woof
               if attribute[:nominal_attributes].include? d
                 vals[attribute[:name]] = d
               else
-                p attribute[:nominal_attributes]
-                p d
                 raise "Found a nominal attribute of an incorrect type!"
               end
             end
@@ -99,6 +94,11 @@ module Woof
       end
       class_attribute = parsed_attributes[-1][:name] if class_attribute.nil?
 
+      puts "done parsing, and here is what I found"
+      # p relation_name
+      # p parsed_attributes
+      # p data
+      # p class_attribute
       arff = Woof::ArffFile.new(relation_name, parsed_attributes, data, class_attribute)
       return arff
     end

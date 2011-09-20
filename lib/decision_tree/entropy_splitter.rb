@@ -25,15 +25,17 @@ module DecisionTree
     # Return the name of the attribute that most decreases entropy
     # of the dataset
     def self.max_entropy_gain(dataset)
+      binding.pry
       # Loop through each attribute. Calculate the entropy gain 
       # if the dataset were split on that attribute.
       # Return the attribute that most decreases entropy
 
       entropies = []
       dataset.attributes.each do |attribute|
-        test_set = dataset.clone.split_on_attribute attribute[:name]
+        test_set = dataset.clone
+        test_set_split = test_set.split_on_attribute attribute[:name]
 
-        entropy_after = test_set.inject(0.0) do |entropy, dataset|
+        entropy_after = test_set_split.inject(0.0) do |entropy, dataset|
           (dataset.count.to_f / dataset.count.to_f) * self.calculate_entropy(dataset) + entropy
         end
         entropies << { attribute: attribute, entropy: entropy_after }
