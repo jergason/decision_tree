@@ -42,7 +42,7 @@ module Woof
       else
         index = to_remove
       end
-      binding.pry
+      # binding.pry
 
       if not index.nil?
         @attributes.delete_at index
@@ -61,6 +61,38 @@ module Woof
       @data.each do |data|
         yield data
       end
+    end
+
+    def count
+      @data.count
+    end
+
+    def arrange_labels_by_count
+      labels = Hash.new(0)
+      @data.each do |data|
+        labels[data[@class_attribute]] = labels[data[@class_attribute]] + 1
+      end
+      labels
+    end
+
+    def all_same_label?
+      labels = arrange_labels_by_count
+      return labels.size == 1
+    end
+
+    def get_only_label
+      return @data[0][@class_attribute]
+    end
+
+    def has_attributes?
+      #one of the attributes is the class, so if it has more than one
+      #attribute it has attributes.
+      return @attributes.size > 1
+    end
+
+    def get_most_common_label
+      labels = arrange_labels_by_count
+      labels.sort! { |h1, h2|  h1[1] <=> h2[1] }[-1][0]
     end
 
     def find_index_of_attribute(attribute_name)

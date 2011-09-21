@@ -2,6 +2,7 @@ module DecisionTree
   class EntropySplitter
 
     def self.choose_attribute(dataset)
+      #TODO: ignore the dang class when trying to split
       return self.max_entropy_gain(dataset)
     end
 
@@ -13,7 +14,7 @@ module DecisionTree
       end
 
       probs = counts.map do |key, value|
-        value.to_f / dataset.size.to_f
+        value.to_f / dataset.count.to_f
       end
 
       entropy = probs.inject(0.0) do |entropy, prob|
@@ -25,18 +26,20 @@ module DecisionTree
     # Return the name of the attribute that most decreases entropy
     # of the dataset
     def self.max_entropy_gain(dataset)
-      binding.pry
+      # binding.pry
       # Loop through each attribute. Calculate the entropy gain 
       # if the dataset were split on that attribute.
       # Return the attribute that most decreases entropy
 
+      #TODO: what the devil is this? How to make sure I am passing in a dataset?
       entropies = []
       dataset.attributes.each do |attribute|
+        next if attribute[:name] == dataset.class_attribute
         test_set = dataset.clone
         test_set_split = test_set.split_on_attribute attribute[:name]
 
         entropy_after = test_set_split.inject(0.0) do |entropy, dataset|
-          (dataset.count.to_f / dataset.count.to_f) * self.calculate_entropy(dataset) + entropy
+          (dataset[1].count.to_f / dataset[1].count.to_f) * self.calculate_entropy(dataset[1]) + entropy
         end
         entropies << { attribute: attribute, entropy: entropy_after }
       end

@@ -11,11 +11,6 @@ module DecisionTree
       @dataset = dataset
     end
 
-    def create_tree
-      root_attribute = @splitter.choose_attribute(@dataset)
-      @root = self.create_tree_recurse(@dataset)
-    end
-
     def classify(feature)
       #start at root
       return recursive_classify(feature, @root)
@@ -29,10 +24,15 @@ module DecisionTree
       end
     end
 
-    def create_tree_rescurse(dataset)
+    def create_tree
+      root_attribute = @splitter.choose_attribute(@dataset)
+      @root = self.create_tree_recurse(@dataset)
+    end
+
+    def create_tree_recurse(dataset)
       # check if all samples have the same label
-      if dataset.same_label?
-        return Node.new(nil, dataset.get_same_label)
+      if dataset.all_same_label?
+        return Node.new(nil, dataset.get_only_label)
       elsif not dataset.has_attributes?
         return Node.new(nil, dataset.get_most_common_label)
         # If there are no features left, return a leaf with the most common
@@ -41,7 +41,7 @@ module DecisionTree
         children = dataset.split_on_attribute(@splitter.choose_attribute(dataset))
         childs = {}
         children.each do |attribute_value, dataset|
-          childs[attribute_value] = create_tree_rescurse(dataset)
+          childs[attribute_value] = self.create_tree_recurse(dataset)
         end
         return Node.new(childs, @splitter.choose_attribute(dataset))
       end
