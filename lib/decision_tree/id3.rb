@@ -3,11 +3,8 @@ module DecisionTree
 
   class ID3
     def initialize(dataset, splitting_criteria)
-      if splitting_criteria == "entropy"
-        @splitter = DecisionTree::EntropySplitter
-      elsif splitting_criteria == "accuracy"
-        @splitter = DecisionTree::AccuracySplitter
-      end
+      @split_criteria = splitting_criteria
+      @splitter = DecisionTree::Splitter
       @dataset = dataset
     end
 
@@ -25,7 +22,7 @@ module DecisionTree
     end
 
     def create_tree
-      root_attribute = @splitter.choose_attribute(@dataset)
+      root_attribute = @splitter.choose_attribute(@dataset, @split_criteria)
       @root = self.create_tree_recurse(@dataset)
     end
 
@@ -38,12 +35,12 @@ module DecisionTree
         # If there are no features left, return a leaf with the most common
         # class
       else
-        children = dataset.split_on_attribute(@splitter.choose_attribute(dataset))
+        children = dataset.split_on_attribute(@splitter.choose_attribute(dataset, @split_criteria))
         childs = {}
         children.each do |attribute_value, dataset|
           childs[attribute_value] = self.create_tree_recurse(dataset)
         end
-        return Node.new(childs, @splitter.choose_attribute(dataset))
+        return Node.new(childs, @splitter.choose_attribute(dataset, @split_criteria))
       end
     end
   end

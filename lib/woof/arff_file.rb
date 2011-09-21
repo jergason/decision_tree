@@ -70,7 +70,7 @@ module Woof
     def arrange_labels_by_count
       labels = Hash.new(0)
       @data.each do |data|
-        labels[data[@class_attribute]] = labels[data[@class_attribute]] + 1
+        labels[data[@class_attribute]] += 1
       end
       labels
     end
@@ -92,7 +92,7 @@ module Woof
 
     def get_most_common_label
       labels = arrange_labels_by_count
-      labels.sort! { |h1, h2|  h1[1] <=> h2[1] }[-1][0]
+      labels.sort { |h1, h2|  h1[1] <=> h2[1] }[-1][0]
     end
 
     def find_index_of_attribute(attribute_name)

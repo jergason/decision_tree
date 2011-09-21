@@ -5,8 +5,8 @@ module Woof
       @file_path = file
     end
 
-    # Parse the relation name, the attributes, and data into 
-    # Ruby data structures, and return a WoofObject
+    # Parse the relation name, the attributes, and data into
+    # Ruby data structures, and return an ArffFile object
     def parse
       lines = []
       File.open(@file_path) do |f|
