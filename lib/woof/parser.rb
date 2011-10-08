@@ -67,9 +67,10 @@ module Woof
           vals = {}
           data_line.each_with_index do |d, i|
             #TODO: what to do with "?" attributes?
+            # Skip them?
             attribute = parsed_attributes[i]
             if ['numeric', 'real', 'integer'].include? attribute[:type]
-              vals[attribute[:name]] = d.to_float
+              vals[attribute[:name]] = d.to_f
             elsif attribute[:type] == "string"
               vals[attribute[:name]] = d
               #it is a nominal attribute according to our naive parser
@@ -81,26 +82,43 @@ module Woof
               end
             end
           end
-          data << vals
+          # Skip features with missing values
+          data << vals unless vals.has_value? "?"
         elsif l =~ /\s*@data/i
           seen_data = true
         end
       end
 
+
+      #Discretize the numeric attributes
+      # binding.pry
+      parsed_attributes.each do |attribute|
+        if %w[real numeric float integer int].include? attribute[:type]
+          numeric_attribute = attribute[:name]
+          just_numbers = data.map do |data_row|
+            data_row[numeric_attribute]
+          end
+          median = just_numbers.woof_median { |n1, n2| n1 <=> n2 }
+          # median = data.woof_median { |o1, o2| o1[numeric_attribute] <=> o2[numeric_attribute] }
+          attribute[:type] = "string"
+          attribute[:nominal_attributes] = ["greater than #{median}", "less than or equal to #{median}"]
+          data.each do |data_row|
+            data_row[numeric_attribute] = data_row[numeric_attribute] > median ? attribute[:nominal_attributes][0] : attribute[:nominal_attributes][1]
+          end
+          # binding.pry
+        end
+      end
+
+
+
       #look for an attribute that matches /^class$/i, or just pick the last one as the class
       class_attribute = nil
       parsed_attributes.each_with_index do |attr, i|
-        class_attribute attr[:name] if attr[:name] =~ /class/i
+        class_attribute = attr[:name] if attr[:name] =~ /class/i
       end
       class_attribute = parsed_attributes[-1][:name] if class_attribute.nil?
 
-      puts "done parsing, and here is what I found"
-      # p relation_name
-      # p parsed_attributes
-      # p data
-      # p class_attribute
-      arff = Woof::ArffFile.new(relation_name, parsed_attributes, data, class_attribute)
-      return arff
+      return  Woof::ArffFile.new(relation_name, parsed_attributes, data, class_attribute)
     end
   end
 end
