@@ -28,7 +28,7 @@ module DecisionTree
       # check if all samples have the same label
       if dataset.data.empty?
         #If if is empty, just pick a random one?
-        return Node.new(nil, dataset.attributes[dataset.class_attribute][:nominal_attributes][0])
+        return Node.new(nil, dataset.attributes[0][:nominal_attributes].sample)
       elsif dataset.all_same_label?
         # binding.pry
         return Node.new(nil, dataset.get_only_label)
