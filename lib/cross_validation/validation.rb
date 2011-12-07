@@ -6,18 +6,17 @@ module CrossValidation
   # Let nk be the number of instances of Sk correctly classified by Mk
   # Return (n1+n2+...+nN)/N
   class Validator
-    def initialize(dataset, classifier, classifier_args)
+    def initialize(dataset, classifier, classifier_args={})
       @dataset = dataset
       @classifier = classifier
       @classifier_args = classifier_args
     end
 
     def create_folds(n)
-      raise StandardError.new("More folds than data") if n > @dataset.length
-      @folds = nil
+      raise ArgumentError.new("More folds than data") if n > @dataset.length
+      @folds = []
       removal_size = @dataset.length / n
       (n-1).times do |i|
-        # TODO: this won't work the last iteration through.
         test_set = @dataset[i*removal_size..(i+1)*removal_size]
         train_set = @dataset - test_set
         @folds << {
@@ -26,15 +25,26 @@ module CrossValidation
         }
       end
       test_set = @dataset[(n-1)*removal_size...-1]
-      train_set = @dataset - train_set
+      train_set = @dataset - test_set
+      @folds << {
+        test: test_set,
+        train: train_set
+      }
+      @folds
     end
-  end
 
-  def validate(number_of_folds)
-    create_folds number_of_folds
-    number_correct = 0
-    @folds.each do |fold|
-      model = @classifier.new(fold[:train], @classifier_args)
+    def validate(number_of_folds)
+      create_folds number_of_folds
+      binding.pry
+      number_correct = 0
+      @folds.each do |fold|
+        model = @classifier.new(fold[:train], @classifier_args)
+        fold[:test].each do |test|
+          predicted_class = model.classify(test)
+          number_correct += 1 if test[:class] == predicted_class
+        end
+      end
+      number_correct / number_of_folds.to_f
     end
   end
 end

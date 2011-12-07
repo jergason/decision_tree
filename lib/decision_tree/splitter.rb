@@ -43,10 +43,13 @@ module DecisionTree
         test_set = dataset.clone
         test_set_split = test_set.split_on_attribute attribute[:name]
 
-        accumulated_split_criteria = test_set_split.inject(0.0) do |split_criteria, dataset|
-          (dataset[1].count.to_f / dataset[1].count.to_f) * self.send(split_method_name.to_sym, dataset[1]) + split_criteria
+        #TODO: what is the [1] for? What does that mean?
+        criteria_if_split_on_attribute = test_set_split.inject(0.0) do |running_total, split_dataset|
+          (split_dataset[1].count.to_f / dataset[1].count.to_f) *
+            self.send(split_method_name.to_sym, split_dataset[1]) +
+            running_total
         end
-        split_criteria_values << { attribute: attribute, split_criteria: accumulated_split_criteria }
+        split_criteria_values << { attribute: attribute, split_criteria: criteria_if_split_on_attribute }
       end
       if split_method_name == "calculate_entropy"
         return split_criteria_values.sort! { |attribute1, attribute2| attribute1[:split_criteria] <=> attribute2[:split_criteria] }[0][:attribute][:name]

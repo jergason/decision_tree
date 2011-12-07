@@ -2,8 +2,7 @@ module DecisionTree
   Node = Struct.new(:children, :label)
 
   class ID3
-    def initialize(dataset, split_criteria="entropy", options={})
-      @split_criteria = split_criteria
+    def initialize(dataset, options={})
       options[:split_criteria] ||= @split_criteria
       @split_criteria = options[:split_criteria]
       @splitter = DecisionTree::Splitter

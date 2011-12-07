@@ -1,16 +1,14 @@
 $:.push "."
-# $:.push "lib"
 
 require 'bundler'
 Bundler.require(:default)
 require 'lib/decision_tree'
-# require 'lib/woof'
+require 'lib/cross_validation'
 
-include DecisionTree
-include Woof
 
-iris  = Parser.new('iris.arff').parse( :discretize => true )
+iris  = Woof::Parser.new('iris_discrete.arff').parse( :discretize => true )
+# tree = DecisionTree::ID3.new(iris, split_criteria: 'entropy')
 # binding.pry
-
-tree = ID3.new(iris, "entropy")
-binding.pry
+validator = CrossValidation::Validator.new(iris, DecisionTree::ID3, split_criteria: 'entropy')
+res = validator.validate(3)
+p res
