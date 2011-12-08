@@ -6,6 +6,7 @@ module CrossValidation
   # Let nk be the number of instances of Sk correctly classified by Mk
   # Return (n1+n2+...+nN)/N
   class Validator
+    attr_reader :dataset
     def initialize(dataset, classifier, classifier_args={})
       @dataset = dataset
       @classifier = classifier

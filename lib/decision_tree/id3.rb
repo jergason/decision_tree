@@ -3,7 +3,7 @@ module DecisionTree
 
   class ID3
     def initialize(dataset, options={})
-      options[:split_criteria] ||= @split_criteria
+      options[:split_criteria] ||= "entropy"
       @split_criteria = options[:split_criteria]
       @splitter = DecisionTree::Splitter
       @dataset = dataset
@@ -37,12 +37,13 @@ module DecisionTree
         return Node.new(nil, dataset.get_most_common_label)
         # If there are no features left, return a leaf with the most common class
       else
+        # binding.pry
         children = dataset.split_on_attribute(@splitter.choose_attribute(dataset, @split_criteria))
         childs = {}
-        children.each do |attribute_value, dataset|
+        children.each do |attribute_value, data|
           #TODO: what to do if they all split into one value? What to do about the other values? Just guess one?
           #Call a random class?
-          childs[attribute_value] = create_tree_recurse(dataset)
+          childs[attribute_value] = create_tree_recurse(data)
         end
         return Node.new(childs, @splitter.choose_attribute(dataset, @split_criteria))
       end
