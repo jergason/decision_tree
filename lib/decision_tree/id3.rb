@@ -26,26 +26,28 @@ module DecisionTree
       @root = self.create_tree_recurse(@dataset)
     end
 
-    def create_tree_recurse(dataset)
-      # check if all samples have the same label
-      if dataset.data.empty?
-        #If if is empty, just pick a random one?
-        return Node.new(nil, dataset.attributes[0][:nominal_attributes].sample)
-      elsif dataset.all_same_label?
+    def create_tree_recurse(dataset, parent_dataset=nil)
+      #TODO: what if the dataset has no attributes and also no data?
+      if dataset.all_same_label?
         return Node.new(nil, dataset.get_only_label)
-      elsif not dataset.has_attributes?
-        return Node.new(nil, dataset.get_most_common_label)
-        # If there are no features left, return a leaf with the most common class
+      elsif not dataset.has_attributes? or dataset.count == 0
+        if dataset.count == 0
+          return Node.new(nil, parent_dataset.get_most_common_label)
+        else
+          return Node.new(nil, dataset.get_most_common_label)
+        end
       else
-        # binding.pry
-        children = dataset.split_on_attribute(@splitter.choose_attribute(dataset, @split_criteria))
+        splitting_attribute = @splitter.choose_attribute(dataset, @split_criteria)
+        children = dataset.split_on_attribute(splitting_attribute)
         childs = {}
         children.each do |attribute_value, data|
-          #TODO: what to do if they all split into one value? What to do about the other values? Just guess one?
-          #Call a random class?
-          childs[attribute_value] = create_tree_recurse(data)
+          if data.count == 0 or not dataset.has_attributes?
+            childs[attribute_value] = Node.new(nil, dataset.get_most_common_label)
+          else
+            childs[attribute_value] = create_tree_recurse(data, dataset)
+          end
         end
-        return Node.new(childs, @splitter.choose_attribute(dataset, @split_criteria))
+        return Node.new(childs, splitting_attribute)
       end
     end
   end

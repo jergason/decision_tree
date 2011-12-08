@@ -27,21 +27,20 @@ module DecisionTree
 
 
     def self.choose_attribute(dataset, split_criteria)
-      #TODO: ignore the dang class when trying to split
       split_criteria_method_name = (split_criteria == "entropy" ? "calculate_entropy" : "calculate_accuracy")
       return self.max_gain(dataset, split_criteria_method_name)
     end
 
     def self.calculate_accuracy(dataset)
+      return 1 if dataset.length == 0
       counts = dataset.arrange_labels_by_count
       most_common_label = dataset.get_most_common_label
       accuracy = counts[most_common_label].to_f / dataset.count.to_f
-      return accuracy
+      accuracy
     end
 
     def self.calculate_entropy(dataset)
       #Entropy is just based on the class
-      # binding.pry
       counts = Hash.new(0)
       dataset.each do |data|
         counts[data[dataset.class_attribute]] += 1
@@ -54,7 +53,6 @@ module DecisionTree
       entropy = probs.inject(0.0) do |entropy, prob|
         entropy + (-Math.log2(prob) * prob)
       end
-      puts entropy
       entropy
     end
 
@@ -69,17 +67,14 @@ module DecisionTree
         next if attribute[:name] == dataset.class_attribute
         test_set = dataset.clone
         test_set_split = test_set.split_on_attribute attribute[:name]
-        # test_set_split = split_on_attribute(test_set, attribute[:name])
 
         criteria_if_split_on_attribute = test_set_split.inject(0.0) do |running_total, split_dataset|
           attribute_value = split_dataset[0]
           dataset_containing_this_attribute = split_dataset[1]
-          binding.pry
           (dataset_containing_this_attribute.count.to_f / dataset.count.to_f) *
             self.send(split_method_name.to_sym, dataset_containing_this_attribute) +
             running_total
         end
-        binding.pry
         split_criteria_values << { attribute: attribute, split_criteria: criteria_if_split_on_attribute }
       end
       if split_method_name == "calculate_entropy"

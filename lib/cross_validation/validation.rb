@@ -36,16 +36,25 @@ module CrossValidation
 
     def validate(number_of_folds)
       create_folds number_of_folds
-      binding.pry
       number_correct = 0
+      number_wrong = 0
       @folds.each do |fold|
         model = @classifier.new(fold[:train], @classifier_args)
+        # binding.pry
         fold[:test].each do |test|
           predicted_class = model.classify(test)
-          number_correct += 1 if test[:class] == predicted_class
+          if test[fold[:test].class_attribute] == predicted_class
+            number_correct += 1
+          else
+            number_wrong += 1
+          end
         end
       end
-      number_correct / number_of_folds.to_f
+      {
+        accuracy: number_correct.to_f / (number_wrong.to_f +  number_correct.to_f),
+        number_correct: number_correct,
+        number_wrong: number_wrong
+      }
     end
   end
 end
